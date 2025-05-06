@@ -36,10 +36,8 @@ def load_data(file_path):
     Returns:
         DataFrame containing the data
     """
-    # YOUR CODE HERE
-    # Load the CSV file using pandas
-    
-    return pd.DataFrame()  # Replace with actual implementation
+    data = pd.read_csv(file_path)
+    return data  
 ```
 
 ## 3. Data Preparation
@@ -47,6 +45,8 @@ def load_data(file_path):
 Implement `prepare_data_part1` to select features, split data, and handle missing values.
 
 ```python
+from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
 def prepare_data_part1(df, test_size=0.2, random_state=42):
     """
     Prepare data for modeling: select features, split into train/test sets, handle missing values.
@@ -64,9 +64,15 @@ def prepare_data_part1(df, test_size=0.2, random_state=42):
     # 2. Select target variable (disease_outcome)
     # 3. Split data into training and testing sets
     # 4. Handle missing values using SimpleImputer
-    
-    # Placeholder return - replace with your implementation
-    return None, None, None, None
+    imputer = SimpleImputer(missing_values = np.nan, strategy = 'mean')
+    X = df[['age', 'systolic_bp', 'diastolic_bp', 'glucose_level', 'bmi']]
+    imputer = imputer.fit(X)
+    X = imputer.transform(data)
+
+    y = df['disease_outcome']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+
+    return X_train, X_test, y_train, y_test
 ```
 
 ## 4. Model Training
@@ -74,6 +80,7 @@ def prepare_data_part1(df, test_size=0.2, random_state=42):
 Implement `train_logistic_regression`.
 
 ```python
+from sklearn.linear_model import LogisticRegression
 def train_logistic_regression(X_train, y_train):
     """
     Train a logistic regression model.
@@ -85,17 +92,17 @@ def train_logistic_regression(X_train, y_train):
     Returns:
         Trained logistic regression model
     """
-    # YOUR CODE HERE
-    # Initialize and train a LogisticRegression model
-    
-    return None  # Replace with actual implementation
+    logreg = LogisticRegression(random_state=42)
+    return logreg.fit(X_train, y_train)  
 ```
 
 ## 5. Model Evaluation
 
-Implement `calculate_evaluation_metrics` to assess the model's performance.
+Implement `calculate_evaluation_metrics` to assess the model performance.
 
 ```python
+from sklearn import metrics
+from sklearn.metrics import classification_report
 def calculate_evaluation_metrics(model, X_test, y_test):
     """
     Calculate classification evaluation metrics.
@@ -113,9 +120,15 @@ def calculate_evaluation_metrics(model, X_test, y_test):
     # 2. Calculate metrics: accuracy, precision, recall, f1, auc
     # 3. Create confusion matrix
     # 4. Return metrics in a dictionary
-    
-    # Placeholder return - replace with your implementation
-    return {}
+
+    y_pred = model.predict(X_test)
+    accuracy = sklearn.metrics.accuracy_score(y_test, y_pred)
+    precision = sklearn.metrics.precision_score(y_test, y_pred)
+    recall = sklearn.metrics.recall_score(y_test, y_pred)
+    f1 = sklearn.metrics.f1_score(y_test, y_pred)
+    auc = sklearn.metrics.roc_auc_score(y_test, y_pred)
+    cnf_matrix = sklearn.metrics.confusion_matrix(y_test, y_pred)
+    return {accuracy, precision, recall, f1, auc, cnf_matrix}
 ```
 
 ## 6. Save Results
@@ -123,11 +136,17 @@ def calculate_evaluation_metrics(model, X_test, y_test):
 Save the calculated metrics to a text file.
 
 ```python
-# Create results directory and save metrics
-# YOUR CODE HERE
-# 1. Create 'results' directory if it doesn't exist
-# 2. Format metrics as strings
-# 3. Write metrics to 'results/results_part1.txt'
+import os 
+
+def save_results(metrics: dict)
+    os.makedirs('results', exist_ok=True)
+    formatted_metrics = [f"{key}: {value}" for key, value in metrics.items()]
+
+    output_file = 'results/results_part1.txt'
+    with open(output_file, 'w') as f:
+        for line in formatted_metrics:
+            f.write(line + '\n')
+    print(f"\nMetrics saved to {output_file}")
 ```
 
 ## 7. Main Execution
@@ -156,7 +175,7 @@ if __name__ == "__main__":
             print(f"{metric}: {value:.4f}")
     
     # 6. Save results
-    # (Your code for saving results)
+    save_results(metrics)
     
     # 7. Interpret results
     interpretation = interpret_results(metrics)
